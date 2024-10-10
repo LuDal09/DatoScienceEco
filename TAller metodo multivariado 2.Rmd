@@ -1,0 +1,393 @@
+---
+title: "Análisis Factorial"
+author: "Luis David Bassa Llorente,Argeniz Diaz, Ergar nuñez"
+date: "2024-10-09"
+output: 
+  html_document: 
+  pdf_document: 
+    lang: es-ES
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)  
+```
+
+# Análisis Factoria:Clasificacion de empleados
+
+## Metodologia
+
+Llevado acabo en una empresa, se tomo una muestra de 48 personas, donde se registraron 15 variables. En el estudio se incluyeron a personas que cumpliera con estos criterios, tales como su letra, su aspecto, su capacidad académica, su amabilidad, su autoconfianza, su lucidez, su honestidad, su arte de vender, su experiencia, su empuje, su ambición,entre otros. El análisis estadístico de los datos obtenidos, se ejecuto en un software llamado Rstudio
+
+## Introduccion
+
+Análisis Factorial exploratorio Aplicar técnicas estadísticas y metodológicas para evaluar factores de riesgo en epidemiologıa mediante la realización de ejercicios prácticos, centrándose en la identificación, control y análisis dela confusión y la interacción entre variables. El análisis exploratorio es un método multivariado que busca expresar un conjunto de variables observables (P variables) de manera mas manejable y comprensible. Para que este análisis sea adecuado, es fundamental que las variables estén correlacionadas entre sí, lo que se evalúa mediante la realización de una matriz de correlaciones.Para verificar la correlación entre las variables, se aplica la prueba de Bartlett, la cual evalúa la hipótesis nula de que las variables no están correlacionadas. Ademas, se puede utilizar el criterio de Kaiser y el indice de adecuación de Kaiser-Meyer-Olkin (KMO) para evaluar la adecuación delos datos. El KMO proporciona una medida de que tan adecuados están los datos para el análisis factorial, donde valores mayores indican una mejor adecuación.Los criterios de interpretación del KMO se dividen en seis rangos, desde inaceptable hasta excelente,lo que permite una evaluación rápida de la calidad de los datos para el análisis factorial
+
+### Análisis y datos
+
+```{r eval=TRUE}
+# Cargar paquetes
+
+library(readxl)
+library(polycor)
+library(ggcorrplot)
+library(psych)
+library(psy)
+library(gridExtra)
+
+
+
+```
+
+```{r}
+
+
+
+
+# Cargar datos
+df <- read_excel("Base2-1.xlsx")
+df <- df[, -1]  # Eliminar primera columna 
+
+df <- df[-c(41, 42), ]# quitar los individious 41 ,42 
+df <- as.data.frame(df) 
+
+class(df) 
+str(df)
+```
+
+visualizar los primero datos
+
+```{r}
+# Visualizar los primeros registros de los datos
+head(df) 
+
+  
+```
+
+La muestra consiste en 48 individuos que han solicitado empleo en una gran empresa y que fueron entrevistados y evaluados en relacion con 15 criterios diferentes donde se eliminaron los individuo 41 y 42.
+
+## Descriptiva de los datos
+
+```{r echo=FALSE}
+
+describe(df)
+
+```
+
+```{r}
+
+mat_cor <- hetcor(df)$correlations #matriz de correlación policorica 
+
+
+```
+
+```{r}
+plot(ggcorrplot(mat_cor,type="lower",hc.order = T))
+```
+
+En esta grafica se puede apreciar la correlacion existente entre las variables representadas por colores siendo las de tono rojo las que poseen una correlacion positiva y azul siendo una correlacionnegativa Determinante de la matriz de correlaciones: un determinante muy bajo indicar altasintercorrelaciones entre las variables, pero no debe ser cero (matriz no singular), pues esto indicarıaque algunas de las variables son linealmente dependientes y no se podrıan realizar ciertos calculos.
+
+```{r eval=FALSE}
+ 
+library(xts)
+library(zoo)
+library(PerformanceAnalytics)
+chart.Correlation(df, histogram=TRUE, pch=20) 
+
+```
+
+![Grafico de correlaciones, dispersion y distribucion](images/00001a.png)
+
+**Matriz de datos rectangular**
+
+La matriz de datos debe tener una estructura rectangular, es decir, debe tener más observaciones que variables para realizar un análisis factorial.
+
+**Análisis Factorial**
+
+Antes de realizar el análisis factorial, es importante verificar algunos supuestos y realizar pruebas que confirmen la idoneidad de los datos para este análisis
+
+## **Coeficiente KMO**
+
+El coeficiente de Kaiser-Meyer-Olkin (KMO) se utiliza para evaluar la adecuación de los datos para el análisis factorial. Proporciona una medida de la proporción de varianza compartida entre las variables observadas que se puede explicar mediante factores comunes.
+
+La hipótesis nula (H0) y alternativa (H1) para el coeficiente KMO son las siguientes:
+
+-   H0 (Hipótesis Nula): La matriz de correlación entre las variables observadas no es adecuada para el análisis factorial, lo que indica que los datos no están bien correlacionados y el análisis factorial no es apropiado.
+
+-   H1 (Hipótesis Alternativa): La matriz de correlación entre las variables observadas es adecuada para el análisis factorial, lo que indica que los datos están suficientemente correlacionados y el análisis factorial es apropiado.
+
+El resultado del coeficiente KMO se interpreta de la siguiente manera: - Si el valor del coeficiente KMO está cerca de 1, indica que los datos son adecuados para el análisis factorial. - Si el valor del coeficiente KMO está por debajo de 0.5, indica que los datos no son adecuados para el análisis factorial y se deben buscar otros métodos de análisis.
+
+En el caso de la prueba KMO, el valor obtenido se compara con un umbral predefinido (por ejemplo, 0.5 o 0.6) para determinar si los datos son adecuados para el análisis factorial. Si el valor del coeficiente KMO es mayor que el umbral, se concluye que los datos son adecuados para el análisis factorial. Por el contrario, si el valor del coeficiente KMO es menor que el umbral, se concluye que los datos no son adecuados y el análisis factorial no es apropiado.
+
+```{r}
+# Coeficiente KMO
+kmo_result <- KMO(mat_cor) 
+KMO(mat_cor)
+kmo_result$MSA
+```
+
+Observamos que el KMO general es igual a 0.78727 por lo que tenemos que es un modelo bueno con respecto a las metricas de referencia esto nos indica que podemos continuar con el análisis Factorial
+
+## Test de Bartlett
+
+El test de Bartlett que se utiliza para probar la hipótesis nula que afirma que las variables no están correlacionadas en la población. (Lo idial es que p valor \< nivel de significancia, para rechazar la $H_0$ .)
+
+```{r}
+p<-cortest.bartlett(mat_cor, n = nrow(df) )
+p 
+```
+
+El resultado del un p valor
+
+```         
+8.916984e-70
+```
+
+nos permite rechazar la hipótesis nula.
+
+## Numero de componente
+
+Se hace uso de una grafica de sedimentacion que muestra el numero del factor versus su valor propio correspondiente.
+
+nos permite determinar el numero de factores
+
+```{r}
+scree(mat_cor) 
+valor<-eigen(mat_cor)
+
+```
+
+```{r}
+fa.parallel(mat_cor, n.obs=nrow(df), fa="fa", fm="paf")
+```
+
+Del grafico podemos inferir que se deben tomar 2 factores para el analisis.
+
+```{r}
+vartotal <- valor$values / sum(valor$values) * 100
+vartotal
+```
+
+observamos que el primer factor explica el 51.289786% y el segundo factor el 11.93% de la variabilidad de los datos
+
+## Conclusion del Análisis Factorial
+
+podemos sacar la conclucion del el analisis factorial la presencia de dos factores significativos que resumían la información contenida en las variables originales. Estos factores fueron etiquetados como Factor 1 (MR1) y Factor 2 (MR2), de acuerdo con las variables seleccionadas.
+
+```{r}
+res <- fa(r=mat_cor, nfactors = 2, rotate = "varimax", fm = "paf")
+res$loadings
+```
+
+hay que tener en cuenta que si la carga factorial de esta es superior o igual a 0.3 estará sera una variable latente, en caso contrario esta se podría eliminar del análisis dado que no es significativa.
+
+Ahora con la función fa.diagram podemos que variables pertenecen eso factores.
+
+```{r}
+fa.diagram(res)
+```
+
+### Factor 1 (MR1)
+
+Este factor (MR1) está dado por las siguientes variables: Ambición (AMB), Arte de Vender (SMS), Autoconfianza (SC), Lucidez (LC), Capacidad para Captar Conceptos (GSP), Empuje (DRV), Potencial (POT), y Aspecto (APP).
+
+### Factor 2 (MR2)
+
+Este factor (MR2) está dado por las siguientes variables: Amabilidad (LA), Entusiasmo para Trabajar en Grupo (KJ), Forma de la Letra (FL), Conveniencia (SUIT), Experiencia (EXP), y Honestidad (HON).
+
+### Decision
+
+La variable "Capacidad Académica (AA)" puede no haber sido incluida en ninguno de los factores identificados en el análisis factorial debido a su baja correlación con otras variables, su estructura única o su menor relevancia en comparación con otras variables en el conjunto de datos.
+
+## Análisis de las Calificaciones Promedio de los Solicitantes 
+
+aquí calcularemos  las calificaciones promedio de cada solicitante en relación con los factores MR1 y MR2 identificados en el análisis factorial. Luego, se identificarán los tres mejores candidatos para cada factor en función de estas calificaciones promedio.
+
+```{r}
+MR1 <- subset(df, select = c("AMB", "SMS", "SC", "LC", "GSP", "DRV", "POT", "APP" ))
+MR2 <- subset(df, select = c("LA", "KJ", "FL", "SUIT", "EXP", "HON"))
+
+
+MR1$media <- apply(MR1, 1, mean)
+MR2$media <- apply(MR2, 1, mean)
+```
+
+Mejores Candidatos Factor(1) y Factor (2)
+
+```{r}
+head(MR1[order(-MR1$media), ], 3) 
+
+
+head(MR2[order(-MR2$media), ], 3)
+```
+
+Aqui se presentan los tres promedios mas destacados para cada una de las dos variables latentes.
+ 
+ 
+ El objetivo principal de este análisis es identificar las tendencias más destacadas dentro de los datos estudiados. Esta información es fundamental para obtener una comprensión más profunda de la estructura subyacente de las variables latentes y cómo estas se relacionan con otras variables dentro del análisis factorial. Al centrarse en los tres promedios más elevados, se ofrece una perspectiva más específica y detallada de las características predominantes de las variables latentes, lo que facilita una interpretación más clara y significativa de los resultados obtenidos. Esto permite al investigador profundizar en el análisis y extraer conclusiones más precisas y útiles para entender el comportamiento de las variables dentro del modelo. 
+ 
+ 
+ tambien podemos hacer grafico para observar cuales son los mejores individuos y los mejores desempeños para  eso factores. 
+ 
+```{r}
+top_values <- head(MR1[order(-MR1$media), ], 3)$media
+top_values2 <- head(MR2[order(-MR2$media), ], 3)$media
+
+# Crear un gráfico de dispersión para todos los candidatos de MR1
+ggplot(data = MR1, aes(x = rownames(MR1), y = media, label = rownames(MR1))) +
+  geom_point(aes(color = ifelse(media %in% top_values, "Top 3", "Otros")), size = 3) +
+  geom_text(vjust = -0.5, size = 3) +
+  labs(title = "Tres Mejores Candidatos para el FACTOR(1)",
+       x = "Solicitante",
+       y = "Calificacion Promedio",
+       color = "Destacado") +
+  scale_color_manual(values = c("skyblue", "red")) +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+ 
+*podemos observar que los mejores candidato FACTOR(1) son los individious 10,23 y 40*. 
+ 
+```{r}
+ggplot(data = MR2, aes(x = rownames(MR2), y = media, label = rownames(MR2))) +
+  geom_point(aes(color = ifelse(media %in% top_values2, "Top 3", "Otros")), size = 3) +
+  geom_text(vjust = -0.5, size = 3) +
+  labs(title = "Tres Mejores Candidatos para el  FACTOR(2)",
+       x = "Solicitante",
+       y = "Calificacion Promedio",
+       color = "Destacado") +
+  scale_color_manual(values = c("skyblue", "red")) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+*podemos observar que los mejores candidato FACTOR(1) son los individious 39,8 y 40*. 
+ 
+ tambien podemos observar que hay un idividuo que sobre sale sobre los demas que es el 40 ya que se encuentra en los dos factores 
+ 
+# Analisis Factorial Confirmartorio(AFC)   
+
+El Análisis Factorial Confirmatorio, permite evaluar la validez y la fiabilidad de cada ítem del cuestionario y realiza un contraste de hipótesis individual. 
+
+Se hace una prueba de normalidad multivariante 
+
+**Normalidad Multivariante**  
+
+##### Prueba de Mardia con MVN.
+
+```{r}
+library(MVN)
+result <- mvn(data = df, mvnTest = "mardia")
+result$multivariateNormality 
+
+
+```
+
+La prueba de asimetría (Skewness) sugiere que los datos no son normales multivariadamente debido a la fuerte asimetría. Sin embargo, la curtosis parece no ser un problema, ya que el valor p es relativamente alto, lo que indica que no hay evidencia suficiente para rechazar la normalidad en ese aspecto.
+
+Por lo tanto, la normalidad multivariada no se cumple en su totalidad , debido principalmente a la asimetría en los datos.
+  
+```{r }
+packages <- c("parameters","apa","haven","ggplot2","ggpubr","gridExtra","apaTables", "reshape", "GPArotation", "mvtnorm", "psych", "psychometric", "lavaan", "nFactors", "semPlot", "MVN", "semTools")
+lapply(packages, library, character.only = TRUE)
+```
+```{r}
+dfc <- df[, -3]
+
+mloBase <- '
+Personalidad =~ AMB + SMS + SC + LC + GSP + DRV + POT + APP 
++ LA + KJ + FL + SUIT + EXP + HON' 
+
+mloFac <- '
+MR1 =~ AMB + SMS + SC + LC + GSP + DRV + POT + APP 
+MR2 =~ + LA + KJ + FL + SUIT + EXP + HON' 
+
+AFCc <- cfa(mloBase, orthogonal=F, data=dfc, estimator="WLSMV", ordered =names(dfc))
+AFC <- cfa(mloFac, orthogonal=F, data=dfc, estimator="WLSMV", ordered =names(dfc))
+```
+### Visualización del Modelo Confirmatorio: Un Factor
+```{r}
+semPaths(AFCc, intercepts = FALSE,edge.label.cex=1.5, 
+         optimizeLatRes = TRUE, groups = "lat",pastel = TRUE,
+         exoVar = FALSE, sizeInt=5,edge.color ="BLUE",esize = 6, 
+         label.prop=2, sizeLat = 6,"std", layout="circle2")
+```
+### Metricas desempeño del: Un Factor
+```{r}
+fitMeasures(AFCc)
+```
+  
+  
+### Visualización del Modelo Confirmatorio: Dos Factor   
+   
+```{r}
+semPaths(AFC, intercepts = FALSE,edge.label.cex=1.5, 
+         optimizeLatRes = TRUE, groups = "lat",pastel = TRUE,
+         exoVar = FALSE, sizeInt=5,edge.color ="blue",esize = 6, 
+         label.prop=2, sizeLat = 6,"std", layout="circle2")
+```
+### Metricas desempeño del: Dos Factor
+```{r}
+fitMeasures(AFC) 
+
+
+``` 
+
+El análisis factorial confirmatorio (AFC) permitió explorar la estructura subyacente de las variables observadas en dos modelos.
+
+#### 1. **Primer modelo (con todas las variables)**:
+   - Los índices de ajuste mostraron resultados positivos, con un **CFI de 0.979** y un **TLI de 0.976**, lo que indica un **buen ajuste** del modelo. No obstante, el valor del **RMSEA** fue de **0.195**, sugiriendo que el modelo tiene un **ajuste moderado** en términos del error de aproximación, ya que un RMSEA por debajo de 0.08 es lo ideal.
+
+#### 2. **Segundo modelo (dos factores)**:
+   - Los índices de ajuste en este modelo fueron aún mejores, con un **CFI de 0.991** y un **TLI de 0.989**, lo que implica un **ajuste superior** al del primer modelo. Además, el **RMSEA** fue **más bajo**, con un valor de **0.132**, lo que refleja una mejora, aunque sigue siendo superior al valor ideal.
+
+##### **Conclusión**:
+Ambos modelos presentan un **buen ajuste general** según los índices **CFI** y **TLI**, que superan el valor recomendado de 0.95. Sin embargo, el **RMSEA** en ambos casos está por encima del nivel óptimo, indicando que **podría mejorarse el ajuste** en términos de aproximación del error. El segundo modelo, con dos factores, presenta un ajuste **ligeramente mejor**, lo que sugiere que esta estructura refleja de forma más adecuada los datos. 
+
+## Comparación entre Métodos de Estimación del Análisis Factorial Exploratorio 
+
+
+
+### Método de Máxima Verosimilitud
+En esta sección, presentamos los resultados obtenidos mediante el método de máxima verosimilitud para las ecuaciones del análisis factorial. A continuación se muestran las principales métricas y hallazgos:
+
+#### Cargas Factoriales
+Las cargas factoriales obtenidas mediante el método de máxima verosimilitud se presentan.
+
+```{r}
+res1 <- fa(r=mat_cor, nfactors = 2, rotate = "varimax", fm = "mle")
+res1$loadings
+```
+ 
+ 
+```{r}
+fa.diagram(res1)
+```
+ 
+## Análisis Factorial con Rotación Oblicua y Estimador de Componentes Principales 
+
+```{r}
+res2 <- fa(r=mat_cor, nfactors = 2, rotate = "oblimin", fm = "pa") 
+res2$loadings
+```
+?fa
+```{r}
+fa.diagram(res2)
+```
+
+```{r}
+sort(res$communality,decreasing = T)->c1
+sort(res1$communality,decreasing = T)->c2
+sort(res2$communality,decreasing = T)->c3
+head(cbind(c1,c2,c3))
+```
+
+En comparación con los resultados obtenidos en los análisis c1 y c2, los valores de comunalidad en c3 siguen mostrando una consistencia notable. Las variables “AMB” , “SMS” y “POT” continúan presentando altos niveles de comunalidad, lo que indica que una parte significativa de su varianza es explicada por los factores extraídos. Esto confirma que estas variables son consistentemente relevantes y están bien representadas por los factores, independientemente del método de rotación o el estimador utilizado.
+
+En contraste, variables como “LA” y “SUIT” experimentan ligeras variaciones en sus valores de comunalidad a lo largo de los diferentes análisis. Aunque mantiene una comunidad considerablemente alta en c3, su relación con los factores puede diferir ligeramente en comparación con c1 y c2. Esto sugiere que la interpretación de estas variables podría variar en función del modelo utilizado. Sin embargo, en términos generales, la mayoría de las variables mantienen altos niveles de comunalidad en c3, lo que refuerza la consistencia de su relación con los factores extraídos. 
+
+
+
+### Conclusion  
+
+Los modelos ajustados mediante análisis factorial exploratorio utilizando la estimación de componentes principales con rotación varimax y el modelo de componentes principales con rotación oblimax explican un porcentaje similar de la variación total. Esto sugiere que ambos enfoques mejoran la capacidad explicativa del análisis factorial exploratorio. Sin embargo, es importante destacar que, al calcular los resultados en el modelo de componentes principales con rotación oblimax, se observa que la primera variable latente incluye un ítem adicional en comparación con el modelo ajustado mediante el análisis factorial exploratorio con rotación varimax. Esto implica que el modelo de componentes principales con rotación oblimax podría proporcionar una representación más detallada o precisa de la estructura subyacente de los datos.
