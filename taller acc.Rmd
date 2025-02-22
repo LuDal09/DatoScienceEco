@@ -1,0 +1,560 @@
+---
+title: "Analisis correlacion canonica"
+author: "Luis David Bassa Llorente,Argenis Diaz,Luis Jose"
+date: "2024-10-09"
+output: 
+  pdf_document: 
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)  
+```
+ 
+
+# ¿Cómo podemos identificar y cuantificar las relaciones lineales entre conjuntos de variables independientes y dependientes en un conjunto de datos multivariados? 
+ 
+ 
+
+# 1. ¿Cuáles son las diferencias entre la correlación canónica y otros métodos de análisis multivariado?
+
+La **correlación canónica** es un método en análisis multivariado que busca identificar y medir la relación entre dos conjuntos de variables multidimensionales. las diferencias entre la correlación canónica y otros métodos de análisis multivariado son:
+
+### 1. **Correlación Canónica (CC)**
+
+La **correlación canónica** estudia la relación entre dos conjuntos de variables (llamados conjuntos o bloques de variables), encontrando combinaciones lineales en cada conjunto que estén altamente correlacionadas entre sí. Su objetivo es maximizar la correlación entre estas combinaciones.
+
+- **Aplicación**: Se utiliza cuando hay dos conjuntos de variables que se desea estudiar en relación con el otro, como variables fisiológicas y psicológicas en estudios de psicología.
+- **Limitación**: Requiere dos bloques claramente diferenciados y no es adecuada si solo hay un conjunto de variables.
+
+### 2. **Análisis de Componentes Principales (PCA)**
+
+El **PCA** reduce la dimensionalidad de un conjunto de datos convirtiendo variables correlacionadas en un conjunto de variables independientes, llamadas componentes principales, que explican la mayor varianza posible de los datos originales.
+
+- **Diferencia clave**: A diferencia de la CC, el PCA no examina la relación entre dos conjuntos de variables. Solo considera la estructura interna de un solo conjunto.
+- **Aplicación**: Ideal para reducir el número de variables en un solo conjunto grande.
+
+### 3. **Análisis Factorial (FA)**
+
+El **análisis factorial** también busca reducir la dimensionalidad, pero en lugar de explicar la varianza total como en PCA, intenta identificar factores latentes que expliquen las correlaciones entre las variables.
+
+- **Diferencia clave**: La CC explora la relación entre conjuntos de variables, mientras que FA explica relaciones dentro de un conjunto a partir de factores latentes.
+- **Aplicación**: Frecuente en psicología para identificar factores subyacentes en cuestionarios.
+
+### 4. **Análisis Discriminante Lineal (LDA)**
+
+El **LDA** busca identificar combinaciones lineales de variables que mejor separan o clasifican entre grupos predefinidos.
+
+- **Diferencia clave**: LDA es un método supervisado, mientras que la CC es no supervisada. LDA se enfoca en maximizar la separación entre grupos, no en correlaciones entre conjuntos de variables.
+- **Aplicación**: Útil para clasificación en problemas de reconocimiento de patrones.
+
+### 5. **Análisis de Correspondencias (CA)**
+
+El **análisis de correspondencias** es similar a PCA pero es adecuado para datos categóricos, encontrando asociaciones entre filas y columnas en una tabla de contingencia.
+
+- **Diferencia clave**: Mientras la CC se basa en correlaciones entre variables continuas, CA es adecuado para datos categóricos y encuentra asociaciones en tablas de contingencia.
+- **Aplicación**: Análisis de asociaciones entre variables categóricas, como estudios de mercado o encuestas.
+
+### Cuadro comparativo
+
+| Método                    | Principal Uso                          | Relación entre conjuntos | Tipo de Variables        |
+|---------------------------|----------------------------------------|--------------------------|--------------------------|
+| Correlación Canónica (CC) | Relación entre dos conjuntos           | Sí                       | Continuas                |
+| PCA                       | Reducción de dimensionalidad           | No                       | Continuas                |
+| Análisis Factorial (FA)   | Identificación de factores latentes    | No                       | Continuas                |
+| LDA                       | Clasificación en grupos               | No                       | Continuas                |
+| CA                        | Asociación en datos categóricos       | No                       | Categóricas              |
+
+En conclusión, la **correlación canónica** se diferencia en su enfoque en la relación entre dos conjuntos de variables, lo que la hace única y adecuada en situaciones en las que existen bloques de datos que se desean comparar entre sí. 
+
+
+
+# ¿Cuáles son las suposiciones clave del análisis de correlación canónica y cómo podemos verificarlas?
+
+El análisis de correlación canónica (CC) se basa en varias suposiciones para que los resultados sean válidos y significativos. Estas suposiciones clave son similares a las de otros métodos multivariados y pueden verificarse con pruebas y procedimientos estadísticos.
+
+### 1. **Linealidad entre las variables**
+   - **Suposición**: La correlación canónica asume que la relación entre las variables dentro de cada conjunto y entre los conjuntos es lineal. La linealidad asegura que las combinaciones lineales de las variables representen adecuadamente la relación.
+   - **Verificación**: 
+     - Graficar diagramas de dispersión para pares de variables dentro y entre conjuntos.
+     - Usar pruebas de linealidad como la prueba de Ramsey (RESET) o la matriz de dispersión. Si las relaciones no son lineales, podría ser necesario aplicar transformaciones.
+
+### 2. **Normalidad multivariada**
+   - **Suposición**: Se asume que las variables en cada conjunto tienen una distribución normal multivariada. La normalidad multivariada permite una interpretación más robusta de los resultados de correlación y de los valores de significancia.
+   - **Verificación**:
+     - Realizar pruebas de normalidad multivariada, como la prueba de Mardia o la prueba de Shapiro-Wilk aplicada a cada variable.
+     - Inspeccionar histogramas, Q-Q plots y realizar la prueba de Jarque-Bera. Si los datos no son normales, pueden aplicarse transformaciones como logaritmos o raíces cuadradas.
+
+### 3. **Ausencia de multicolinealidad**
+   - **Suposición**: Dentro de cada conjunto de variables, se asume que no existe una multicolinealidad excesiva, es decir, que no hay alta correlación entre las variables independientes. La multicolinealidad excesiva puede afectar la estabilidad de las combinaciones lineales.
+   - **Verificación**:
+     - Calcular el **Índice de Condición** y los **Factores de Inflación de la Varianza** (VIF) dentro de cada conjunto de variables. Un VIF alto (mayor a 10) o un índice de condición alto indica multicolinealidad.
+     - Si hay multicolinealidad, considerar eliminar o combinar variables colineales.
+
+### 4. **Relación lineal significativa entre los dos conjuntos de variables**
+   - **Suposición**: Se espera que exista una relación significativa entre los dos conjuntos de variables.
+   - **Verificación**:
+     - Evaluar la significancia de las correlaciones canónicas usando pruebas de Wilks, de Roy o de Lawley-Hotelling, que determinan si las correlaciones canónicas más fuertes son estadísticamente significativas. 
+     - Si no se encuentran relaciones significativas, puede no ser adecuado aplicar el análisis de correlación canónica.
+
+### 5. **Homocedasticidad**
+   - **Suposición**: La homocedasticidad implica que las combinaciones de variables dentro de cada conjunto tienen varianzas constantes.
+   - **Verificación**:
+     - Graficar los residuos de cada variable en función de las demás para observar si las varianzas son constantes.
+     - Realizar pruebas como la prueba de Bartlett o la prueba de Levene para comprobar si las varianzas son homogéneas. En caso de heterocedasticidad, se pueden aplicar transformaciones para estabilizar las varianzas.
+
+### Tabla Resumen de las suposiciones y verificaciones
+
+| Suposición                   | Verificación                                        |
+|------------------------------|-----------------------------------------------------|
+| Linealidad                   | Diagramas de dispersión, prueba de Ramsey           |
+| Normalidad multivariada      | Prueba de Mardia, Shapiro-Wilk, Q-Q plots           |
+| Ausencia de multicolinealidad | VIF, índice de condición                           |
+| Relación lineal significativa | Pruebas de Wilks, Roy, Lawley-Hotelling            |
+| Homocedasticidad             | Prueba de Bartlett, prueba de Levene, gráficos de residuos |
+
+Verificar estas suposiciones permite evaluar la idoneidad del modelo de correlación canónica y garantiza una interpretación precisa de las relaciones entre los conjuntos de variables.       
+ 
+  
+# 3. ¿Cómo interpretamos los coeficientes de correlación canónica?
+ 
+ La interpretación de los coeficientes de correlación canónica en el análisis de correlación canónica (CC) implica entender la magnitud y el significado de las relaciones entre dos conjuntos de variables mediante varias métricas clave.
+
+### 1. **Correlaciones Canónicas (Coeficientes de Correlación Canónica)**
+   - La correlación canónica más alta, llamada **primer coeficiente de correlación canónica**, mide la fuerza de la asociación entre las combinaciones lineales más representativas de cada conjunto de variables (llamadas **variables canónicas**).
+   - Cada par de variables canónicas (una para cada conjunto) tiene un coeficiente de correlación, que se denomina **correlación canónica**. 
+   - **Interpretación**: Un coeficiente alto (cercano a 1) sugiere una fuerte asociación entre los conjuntos de variables. Por el contrario, un coeficiente bajo (cercano a 0) indica una asociación débil.
+
+### 2. **Carga Canónica (Canonical Loadings)**
+   - Las **cargas canónicas** representan la correlación de cada variable original con su respectiva variable canónica. Estas cargas indican qué tan bien cada variable contribuye a la combinación lineal que forma la variable canónica.
+   - **Interpretación**: Una carga alta para una variable indica que esa variable tiene una fuerte relación con la variable canónica y, por ende, juega un papel importante en la relación entre los conjuntos de variables. Una carga baja sugiere una relación débil con la variable canónica.
+   - **Uso**: Las cargas canónicas permiten identificar qué variables de cada conjunto son las más influyentes en la relación canónica y, por lo tanto, en la asociación entre los conjuntos.
+
+### 3. **Coeficientes Canónicos (Canonical Coefficients o Weights)**
+   - Los **coeficientes canónicos** o **pesos canónicos** son los valores de los coeficientes en la combinación lineal que forma cada variable canónica a partir de las variables originales.
+   - **Interpretación**: Estos coeficientes indican la contribución de cada variable en la formación de la variable canónica. Los coeficientes altos indican que una variable específica tiene un peso importante en la combinación lineal, mientras que los coeficientes bajos indican menor influencia.
+   - **Consideración**: Es importante interpretar estos coeficientes en conjunto con las cargas canónicas, ya que un coeficiente alto solo es significativo si también tiene una alta carga canónica.
+
+### 4. **Correlaciones Cruzadas Canónicas (Cross-Loadings)**
+   - Las **correlaciones cruzadas canónicas** miden la correlación de cada variable en un conjunto con la variable canónica del otro conjunto. Estas correlaciones indican cómo cada variable en un conjunto se relaciona con la combinación lineal del conjunto opuesto.
+   - **Interpretación**: Si una variable tiene una alta correlación cruzada con la variable canónica del otro conjunto, se puede decir que esta variable contribuye en gran medida a la asociación entre ambos conjuntos. Las correlaciones cruzadas ayudan a entender la relación entre conjuntos de forma cruzada.
+
+
+### Tabla de las Interpretacion de las Mestricas
+
+| Métrica                  | Qué representa                                | Cómo interpretarla                                                                 |
+|--------------------------|-----------------------------------------------|------------------------------------------------------------------------------------|
+| Correlación canónica     | Fuerza de asociación entre conjuntos          | Un valor alto indica una fuerte relación entre conjuntos                          |
+| Carga canónica           | Contribución de cada variable original        | Altas cargas indican variables influyentes en la relación canónica                |
+| Coeficiente canónico     | Peso de cada variable en la combinación lineal| Altos coeficientes sugieren influencia significativa en la variable canónica      |
+| Correlación cruzada      | Relación de una variable con el conjunto opuesto | Altas correlaciones cruzadas indican influencia en la relación entre conjuntos     |
+
+Interpretar estos coeficientes permite comprender mejor las interacciones entre los conjuntos de variables y su importancia en la relación establecida por el análisis de correlación canónica. 
+
+
+#4. ¿Cuál es la importancia de la prueba de significancia en el análisis de correlación canónica?
+
+
+
+La **prueba de significancia en el análisis de correlación canónica (CC)** es esencial para determinar si las correlaciones encontradas entre las combinaciones lineales de dos conjuntos de variables son estadísticamente significativas.
+
+### Importancia de la Prueba de Significancia en CC
+
+1. **Determinar la Validez de la Relación entre Conjuntos**
+   - La prueba de significancia permite verificar si la relación observada entre los dos conjuntos de variables es producto de una asociación real o si podría haberse dado por azar. Esto ayuda a confirmar que la correlación canónica es representativa de una conexión auténtica entre los conjuntos.
+
+2. **Interpretación Confiable de los Resultados**
+   - Sin una prueba de significancia, los coeficientes de correlación canónica podrían interpretarse erróneamente como relevantes cuando en realidad no lo son. La prueba garantiza que solo se interpretan y reportan las correlaciones que son estadísticamente significativas.
+
+3. **Selección del Número de Pares Canónicos Significativos**
+   - En un análisis de correlación canónica, se pueden obtener múltiples pares de variables canónicas (combinaciones lineales), pero no todos pueden ser relevantes. La prueba de significancia ayuda a identificar cuántos de estos pares representan asociaciones significativas entre los conjuntos, permitiendo a los analistas centrarse en los pares más importantes.
+
+4. **Reducción de Complejidad en el Modelo**
+   - Al identificar solo los pares canónicos significativos, se reduce la complejidad del modelo, haciéndolo más sencillo y fácil de interpretar. Esto evita analizar asociaciones débiles que no contribuyen de manera importante a la relación entre los conjuntos.
+
+### Cómo se Realiza la Prueba de Significancia en CC
+
+Se suelen utilizar diferentes pruebas estadísticas para evaluar la significancia de los coeficientes de correlación canónica, entre ellas:
+
+- **Prueba de Wilks Lambda**: Evalúa la hipótesis nula de que todas las correlaciones canónicas en el conjunto son iguales a cero (es decir, no hay relación lineal entre los conjuntos de variables). Un valor de Wilks Lambda bajo, junto con un valor de p pequeño, indica que las correlaciones canónicas son significativas.
+- **Prueba de Roy (Roy’s Largest Root Test)**: Evalúa la significancia del par canónico con la correlación más alta. Es útil cuando se quiere saber si al menos uno de los pares tiene una correlación significativa.
+- **Prueba de Lawley-Hotelling** y **Prueba de Bartlett**: Son alternativas que también examinan la significancia de las correlaciones canónicas y pueden usarse como pruebas adicionales para validar los resultados.
+
+### Interpretación de los Resultados de la Prueba de Significancia
+
+- Si el valor de p resultante de la prueba de significancia es menor que el nivel de significancia elegido (por ejemplo, 0.05), se rechaza la hipótesis nula y se concluye que la correlación entre los conjuntos de variables es significativa.
+- Los pares canónicos que resulten no significativos pueden descartarse del análisis, ya que no aportan información relevante sobre la relación entre los conjuntos.
+
+
+
+La prueba de significancia en el análisis de correlación canónica asegura que:
+
+1. La relación entre los conjuntos de variables es válida y no producto del azar.
+2. Solo se interpretan y analizan los pares de variables canónicas que tienen una correlación significativa.
+3. Se simplifica el modelo eliminando pares no significativos, haciendo el análisis más preciso y comprensible.
+
+En conclusión, la prueba de significancia es un paso esencial para garantizar la validez, confiabilidad y claridad en la interpretación de las correlaciones canónicas. 
+
+
+
+#5. ¿En qué situaciones prácticas se puede aplicar el análisis de correlación canónica y cuáles son sus beneficios?
+
+
+
+
+- **La aplicación del método** 
+
+El análisis de correlación canónica es el método más generalizado de la familia de las técnicas estadísticas multivariante. Se relaciona directamente con varios métodos de dependencia. Al igual que en la regresión, el objetivo de la correlación canónica es cuantificar la validez de la relación, en este caso entre los dos conjuntos de variables (dependiente e independiente). Se asemeja al análisis factorial en la creación de compuestos de variables. También se parece al análisis discriminante  en su capacidad para determinar las dimensiones independientes para cada conjunto de variables que produce la correlación máxima entre las dimensiones. De esta manera, la correlación canónica identifica la estructura óptima o la dimensionalidad de cada conjunto de variables, que maximiza la relación entre los conjuntos de variables dependientes e independientes. El análisis de correlación canónica trata con la asociación entre los conjuntos de variables múltiples dependientes e independientes. Por ello, desarrolla varias funciones canónicas que maximizan la correlación entre combinaciones lineales, también conocidas como valores teóricos canónicos, que son conjuntos de variables dependientes e independientes. Cada función canónica se basa realmente en la correlación entre dos valores teóricos canónicos, un valor teórico para las variables dependientes y otro para las variables independientes. Otra característica única de la correlación canónica es que se obtienen los valores teóricos de forma que se maximice su correlación. Además, la correlación canónica no acaba con la obtención de una relación simple entre los conjuntos de variables. En su lugar, se pueden conseguir varias funciones canónicas.  
+
+
+
+
+-**Aplicacines** 
+
+**Psicología y Ciencias del Comportamiento**
+
+Ejemplo: Un estudio puede investigar la relación entre variables fisiológicas (como frecuencia cardíaca, presión sanguínea, y nivel de cortisol) y variables psicológicas (como niveles de estrés, ansiedad y felicidad).
+Beneficio: Permite entender cómo ciertos factores fisiológicos se asocian con estados psicológicos, ayudando a identificar patrones que pueden ser relevantes para intervenciones psicológicas o terapéuticas.
+Educación
+ 
+**Educacion** 
+
+Ejemplo: Analizar la relación entre variables de rendimiento académico (como calificaciones en matemáticas, ciencia y lectura) y variables de hábitos de estudio (como horas de estudio, motivación y participación en clase).
+Beneficio: Ayuda a identificar qué hábitos de estudio están asociados con mejores desempeños académicos, orientando estrategias educativas para mejorar el rendimiento de los estudiantes.
+Investigación en Salud
+ 
+**Investigación en Salud** 
+
+Ejemplo: Un estudio puede relacionar variables de comportamiento (como dieta, ejercicio y horas de sueño) con variables de salud (como peso, presión arterial y colesterol).
+Beneficio: Facilita la identificación de hábitos que afectan la salud física, lo que es útil para diseñar programas de bienestar y prevención de enfermedades. 
+
+
+
+# TAREAS PROBLÉMICAS
+ 
+**1. Leer un artículo de investigación que utilice el análisis de correlación canónica y resumir sus hallazgos.** 
+
+
+El artículo estudia la relación entre caracteres vegetativos y de frutos en guayabo (Psidium guajava L.) mediante análisis de correlación canónica. Identifica correlaciones significativas que revelan cómo ciertos caracteres vegetativos (como altura y diámetro de copa) se asocian con características de los frutos (peso, tamaño, contenido de vitamina C). Estos resultados sugieren que la selección genética podría mejorar tanto la calidad de los frutos como el rendimiento vegetal, proporcionando información útil para programas de mejoramiento genético en guayabo.  
+[AQUI](https://www.redalyc.org/journal/1932/193262826006/html/).
+ 
+
+**2. Realizar un análisis de correlación canónica utilizando el conjunto de datos proporcionado** 
+ 
+ ```{r  include=FALSE}
+library(readr)
+library(readxl)
+library(GGally)
+library(CCA)
+library(fields)
+library(vegan)
+require(CCP)
+
+```
+ 
+
+Tenemos una base de datos donde se regitro el nacimiento de 81 bebés en el valle del cauca durante el año 2016.
+
+Realizaremos un analsis de correlacion canocica y responderemos el siguiente interrogante: ¿Cómo se relacionan las características sociodemográficas de los padres con las características de salud al nacer de sus hijos?
+
+```{r include=FALSE}
+
+setwd("C:/Users/Usuario/Pictures/DATOSR")
+nacimientos_1_ <- read_csv("nacimientos (1).csv")
+
+df=as.data.frame(nacimientos_1_)
+
+```
+
+Tomaremos las variables de interes y las dividiremos en dos grupo, el grupo tendra las variables que contienen informacion de las caracteristicas del recien nacido; como lo son : Peso,Talla, Tiempo de Gestación, APGAR1 y APGAR2.
+
+```{r  echo=FALSE}
+grupo1=df[,c("Peso","Talla", "Tiempo de Gestación", "APGAR1","APGAR2")]
+```
+```{r include=FALSE}
+grupo1
+```
+
+Y para el segundo grupo, las varibales con informacion de factores con relacion a los padres, como lo son: Edad de la Madre, Nivel Educativo de la Madre1, Número de Hijos Nacidos Vivos, Número de Embarazos, Edad del Padre,Nivel Educativo del Padre. 
+
+como sabemos que las variables de los niveles educativos son variables categoricas, les daremos valores numericos.
+
+**SIN INFORMACIÓN**: 1,
+**BÁSICA PRIMARIA**: 2,
+**BÁSICA SECUNDARIA**: 3,
+**MEDIA ACADÉMICA O CLÁSICA**: 4,
+**MEDIA TÉCNICA**: 5,
+**TECNOLÓGICA**: 6,
+**TÉCNICA PROFESIONAL**: 7,
+**PROFESIONAL**: 8,
+**ESPECIALIZACIÓN**: 9,
+**MAESTRÍA**: 10,
+
+```{r  echo=FALSE}
+
+ Edad_madre=df$`Edad de la Madre`
+ Numero_hijos=df$`Número de Hijos Nacidos Vivos`
+ Numero_Embarazos=df$`Número de Embarazos`
+ Edad_padre=df$`Edad del Padre`
+ 
+ f <- factor(df$`Nivel Educativo del Padre`,
+            levels = c("SIN INFORMACIÓN","BÁSICA PRIMARIA","BÁSICA SECUNDARIA",
+                       "MEDIA ACADÉMICA O CLÁSICA", "MEDIA TÉCNICA","TECNOLÓGICA","TÉCNICA PROFESIONAL",
+                       "PROFESIONAL","ESPECIALIZACIÓN","MAESTRÍA"),
+            labels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+
+
+niveled_padre <- as.numeric(as.character(f))
+
+
+g <- factor(df$`Nivel Educativo de la Madre1`,
+            levels = c("SIN INFORMACIÓN","BÁSICA PRIMARIA","BÁSICA SECUNDARIA",
+                       "MEDIA ACADÉMICA O CLÁSICA",  "MEDIA TÉCNICA","TECNOLÓGICA","TÉCNICA PROFESIONAL",
+                       "PROFESIONAL","ESPECIALIZACIÓN","MAESTRÍA"),
+            labels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+
+
+niveled_madre <- as.numeric(as.character(g))
+
+
+```
+```{r include=FALSE}
+grupo2=data.frame(Edad_madre,niveled_madre,Numero_hijos,Numero_Embarazos,Edad_padre,niveled_padre)
+
+```
+```{r include=FALSE}
+grupo2
+```
+
+ahora veremos que tan correlacionadas estan las variables de cada grupo
+
+\pagebreak
+
+**Primer grupo**
+
+```{r  echo=FALSE}
+ggpairs(grupo1, title = "Caracteristicas del Recien Nacido")
+```
+Fuertes correlaciones positivas :
+
+Peso y talla : Se observa una alta correlación positiva (0,882) entre el peso al nacer y la estatura, lo que sugiere que los bebés con mayor peso al nacer también tienden a ser más altos. Esto es consistente con los patrones de crecimiento esperados, ya que ambos parámetros son indicadores del desarrollo prenatal.
+Edad gestacional con peso y talla : La edad gestacional muestra fuertes correlaciones tanto con el peso (0,816) como con la altura (0,828), lo que pone de relieve que la prolongación de la duración del embarazo tiene un impacto positivo en ambas dimensiones de la talla al nacer. Esta asociación probablemente refleje el tiempo adicional de crecimiento dentro del útero.
+
+Correlaciones moderadas :
+
+Puntuaciones APGAR : las puntuaciones iniciales (APGAR1) y posteriores (APGAR2) están moderadamente correlacionadas entre sí (0,906). Esto sugiere consistencia en las evaluaciones de vitalidad del recién nacido inmediatamente después del nacimiento y poco después, y es probable que los bebés que muestran una estabilidad inicial mantengan o mejoren su condición a corto plazo.
+Edad gestacional y puntuaciones APGAR : Se observa una correlación moderada entre la edad gestacional y APGAR1 (0,529) y APGAR2 (0,429), lo que implica que los períodos de gestación más prolongados generalmente dan como resultado recién nacidos con una salud posnatal inmediata más fuerte (puntuaciones APGAR más altas). Esta correlación podría deberse a un desarrollo más maduro de los sistemas orgánicos en los bebés nacidos a término o casi a término.
+
+Correlaciones bajas :
+
+Puntuaciones de APGAR y parámetros físicos (peso y altura) : la correlación entre las puntuaciones de APGAR y el peso y la altura al nacer es relativamente baja (p. ej., APGAR1 y Peso en 0,437). Esto sugiere que, si bien el tamaño al nacer proporciona cierta información sobre la salud general, no predice directamente la vitalidad posnatal inmediata, medida por las puntuaciones de APGAR. Los factores que afectan las puntuaciones de APGAR pueden estar más estrechamente relacionados con la estabilidad fisiológica, la respiración y los reflejos del bebé que con el peso y la altura al nacer por sí solos.
+
+Densidad y distribución de datos :
+
+Los gráficos de densidad a lo largo de la diagonal muestran la distribución de los datos para cada métrica. Por ejemplo, los pesos y las alturas al nacer tienden a agruparse en un rango particular, como se ve en los picos de densidad, lo que indica rangos comunes en esta muestra.
+La dispersión en las distribuciones de peso y altura también puede reflejar un conjunto de datos diverso, que posiblemente abarque múltiples contextos de nacimiento (por ejemplo, urbano frente a rural o con diferente acceso a la atención médica).
+
+**Segundo grupo**
+
+```{r  echo=FALSE}
+ggpairs(grupo2, title = "Informacion de los Padres")
+```
+
+
+
+Edad Madre y Edad Padre : La correlación (0,437) entre las edades de la madre y del padre sugiere que los padres tienden a tener edades similares, lo que probablemente refleja patrones típicos en la planificación familiar en pareja, donde individuos de edades similares forman hogares.
+Niveles educativos : La correlación entre los niveles educativos de la madre y el padre (0,426) indica una tendencia a la homogamia educativa, en la que es probable que se emparejen parejas con antecedentes educativos similares. Este es un indicador socioeconómico esencial, ya que los niveles educativos de los padres suelen tener fuertes implicaciones en los conocimientos relacionados con la salud, el acceso a los recursos sanitarios y las prácticas de crianza de los hijos.
+
+
+Nivel educativo y edad de la madre (0,429) : existe una correlación moderada entre la edad de la madre y su nivel educativo, lo que probablemente refleja que las madres mayores han tenido más oportunidades de cursar estudios superiores. Esta tendencia también puede indicar que las madres más jóvenes en este conjunto de datos tienden a tener un nivel educativo menor, lo que podría estar relacionado con una maternidad más temprana y posiblemente con menos recursos prenatales.
+
+Edad y nivel educativo del padre (0,418) : De manera similar, existe una correlación moderada entre la edad del padre y el nivel educativo, lo que sugiere que los padres mayores también pueden haber tenido un mayor nivel educativo, en consonancia con los datos de la madre.
+
+
+Número de embarazos y número de hijos (0,753) : El número de embarazos está altamente correlacionado con el número de hijos vivos, como se esperaba, dado que la mayoría de los embarazos resultan en nacimientos vivos. Sin embargo, una correlación ligeramente inferior a 1,0 podría indicar casos de pérdida del embarazo o nacimientos múltiples (por ejemplo, gemelos), lo que podría influir en este recuento.
+Edad de la madre y número de embarazos (0,296) : La correlación moderada entre la edad de la madre y su número de embarazos indica que las madres de mayor edad probablemente han tenido más embarazos, posiblemente debido a un período reproductivo más prolongado.
+
+
+Edad del padre y número de hijos (-0,072) : La baja correlación (ligeramente negativa) entre la edad del padre y el número de hijos podría reflejar variabilidad en la planificación familiar entre diferentes grupos de edad de padres, donde la edad no predice directamente el tamaño de la familia.
+Educación y número de hijos : Tanto el nivel educativo de la madre como el del padre muestran correlaciones bajas o ligeramente negativas con el número de hijos. Esto se observa a menudo en estudios demográficos, en los que un mayor nivel educativo se asocia con tasas de fecundidad más bajas, posiblemente debido a la postergación de la maternidad y a las opciones de planificación familiar.
+
+A continuacion veremos que tanta realcion tienen estos dos conjuntos de variables
+
+```{r include=FALSE}
+conjuntos <-cbind(grupo1, grupo2)
+```
+
+```{r  echo=FALSE}
+
+ggduo(conjuntos,columnsX = 1:5,columnsY = 6:11,
+      types = list(continuous = "smooth_lm"),
+      title = "Correlación entre los dos grupos",
+      xlab = "Recien nacido",
+      ylab = "caracteristicas sociodemograficas")
+```
+
+\pagebreak
+
+Peso y Talla:
+
+Las variables peso y talla del recién nacido muestran ligeras tendencias positivas con algunas características sociodemográficas. Por ejemplo, puede notarse una correlación débil pero positiva entre el peso/talla y el nivel educativo de la madre. Esto sugiere que el peso y talla al nacer podrían estar influenciados por factores relacionados con la educación materna, que a su vez podría reflejar un acceso adecuado a cuidados prenatales y mejores condiciones de salud.
+
+Tiempo de Gestación:
+
+No se observan correlaciones fuertes del tiempo de gestación con las variables sociodemográficas, lo cual sugiere que la duración del embarazo podría depender más de factores médicos o clínicos específicos, en lugar de factores sociodemográficos. La variabilidad en el tiempo de gestación probablemente esté menos influida por la edad o nivel educativo de los padres.
+
+APGAR1 y APGAR2:
+
+Los puntajes APGAR, que miden la salud del recién nacido inmediatamente después del nacimiento, parecen mostrar ligeras correlaciones con la edad y nivel educativo de la madre. Un puntaje APGAR más alto puede estar asociado con madres de mayor edad y educación, lo que sugiere que el conocimiento o la experiencia materna (representada por la edad y el nivel educativo) pueden tener un impacto positivo en las condiciones del parto y el bienestar inicial del recién nacido.
+
+Edad y Nivel Educativo de los Padres:
+
+La relación entre la edad de la madre y el puntaje APGAR, así como el peso y la talla del bebé, sugiere que las madres de mayor edad o con mayor nivel educativo pueden ofrecer un contexto de salud prenatal más favorable. Esto puede estar asociado a una mayor experiencia o a un mejor acceso a información sobre cuidados prenatales y recursos médicos.
+
+Número de Hijos:
+
+En general, el número de hijos no parece tener una correlación significativa con las variables del recién nacido (peso, talla, APGAR). Sin embargo, madres con varios hijos pueden tener más experiencia en el cuidado prenatal, aunque esta experiencia no parece reflejarse de manera importante en el peso, talla o estado inicial de salud del recién nacido según el gráfico.
+
+
+En resumidas cuentas, este gráfico sugiere que factores como la edad y el nivel educativo de la madre pueden tener un impacto en las características iniciales del recién nacido, especialmente en el puntaje APGAR y en cierta medida en el peso y talla. La falta de correlación fuerte en otras variables indica que probablemente existan otros factores, tanto biológicos como ambientales, que afectan el desarrollo y las características de los recién nacidos. Un análisis estadístico más profundo, como un modelo de regresión, podría ayudar a identificar la magnitud de estas relaciones y a descartar efectos espurios.
+
+
+Vamos a construir el análisis de correlación canónica entre el grupo 1 y el grupo 2
+
+```{r include=FALSE}
+mat_cor  <-matcor(grupo1,grupo2)
+mat_cor
+round(100*mat_cor$XYcor,1)
+
+```
+
+```{r include=FALSE}
+cca1<- cc(grupo1,grupo2)
+```
+
+```{r echo=TRUE}
+cca1$cor
+```
+
+Primera Componente Canónica: Un valor de 0.4473013 indica una correlación moderada-alta entre el primer par de variables canónicas derivadas de grupo1 y grupo2. Esto sugiere que hay una relación significativa entre estas variables, lo que significa que las variaciones en una de las variables están relacionadas con las variaciones en la otra.
+
+Segunda Componente Canónica: Con un valor de 0.3131851, la correlación es moderada. Esto indica que las variables asociadas a la segunda componente canónica también están relacionadas, aunque no tan fuertemente como en la primera.
+
+Tercera Componente Canónica: Un valor de 0.2617937 indica una relación más débil pero aún significativa entre las variables de la tercera componente.
+
+Cuarta Componente Canónica: Con 0.1920326, la correlación es baja, sugiriendo que las variables de la cuarta componente están menos relacionadas en comparación con las anteriores.
+
+Quinta Componente Canónica: Finalmente, un valor de 0.1158910 indica una correlación muy débil entre las variables de la quinta componente, lo que sugiere que la relación entre estas variables es mínima.
+Una vez que se encontro la correlación para cada par de variables canónicas, mostraremos los coeficientes correspondientes
+
+```{r echo=TRUE}
+cca1[3:4]
+```
+
+Podemos ver que la correlacion del primer par de variables canócicas son Tiempo de gestacion y numero de embarazos que son las que tienen un valor mas alto, para el segundo par son APGAR1 y  numero de embarazos y asi  con los demas pares de variables.
+
+
+Actualmente nos interesa comprender la relación entre cada variable y su variable canónica; es decir, saber que tanta carga canocica hay entre los grupos y su variables.
+
+```{r include=FALSE}
+cca2 <- comput(grupo1, grupo2, cca1)
+
+
+```
+
+```{r echo=TRUE}
+cca2[3:6]
+```
+
+El análisis CCA muestra que hay relaciones significativas entre las variables de los dos grupos, lo que indica que las variaciones en las características físicas del bebé están relacionadas con las características de los padres.
+
+Las primeras componentes canónicas son las más significativas en términos de correlación, lo que sugiere que son las más relevantes para explicar la relación entre las variables de ambos grupos.
+
+$$H_0: \rho =0  \ vs \  H_1: \rho \neq 0$$
+
+Realizaremos la siguiente prueba de hipoteisis para saber si cada dimension canicica es relevante o no.
+
+Evaluaremos priemro de forma general (las 5 al mismo tiempo), luego la 2 a la 5, despues de la 3 a la 5, de la 4 a la 5, y por ultimo solo con la 5.
+
+
+```{r include=FALSE}
+rho <- cca1$cor
+
+n <- dim(grupo1)[1]
+p1 <- length(grupo1)
+p2 <- length(grupo2)
+
+
+```
+
+```{r echo=FALSE}
+p.asym(rho, n, p1, p2, tstat = "Wilks")
+```
+
+Los resultados del análisis de Wilks' Lambda indican que no hay evidencia suficiente para rechazar la hipótesis nula $H_0: \rho =0$ En otras palabras, la correlación entre las variables que se estan analizando es no significativa.
+
+
+Ahora veremos que tanto aportan las variables al modelo.
+
+
+```{r include=FALSE}
+s1 <- diag(sqrt(diag(cov(grupo1))))
+```
+
+```{r echo=FALSE}
+s1%*%cca1$xcoef
+
+```
+
+Las variables en grupo 1 tienen efectos diferentes en las componentes canónicas resultantes. Algunas variables contribuyen significativamente a ciertas dimensiones mientras que otras afectan negativamente.
+
+```{r include=FALSE}
+s2 <- diag(sqrt(diag(cov(grupo2))))
+```
+
+```{r echo=FALSE}
+s2%*%cca1$ycoef
+
+```
+
+Las variables que más influyen en las dimensiones canónicas parecen ser la tercera (negativa en componentes) y la cuarta (positiva en múltiples dimensiones), lo que sugiere que pueden ser clave para el análisis.
+
+
+```{r include=FALSE}
+s1 <- diag(sqrt(diag(cov(grupo1))))
+```
+
+```{r echo=FALSE}
+img.matcor(mat_cor, type = 2)
+
+
+```
+
+el gráfico indica que las variables dentro de cada conjunto tienen correlaciones internas significativas, pero las correlaciones cruzadas entre Y y X. Y son relativamente bajas o nulas, lo que podría sugerir una débil relación entre los dos conjuntos de variables en este análisis de correspondencia canónica.
+
+
+
+A partir del análisis realizado sobre la relación entre las características sociodemográficas de los padres y las características de salud al nacer de sus hijos, se pueden extraer las siguientes conclusiones:
+
+Se observan correlaciones positivas significativas entre las características de salud de los recién nacidos (como peso, talla y tiempo de gestación) y la edad de la madre, así como el nivel educativo de los padres. Esto sugiere que a medida que aumenta la edad de los padres y su nivel educativo, las características de salud al nacer tienden a mejorar.
+
+La edad de la madre y del padre muestra correlaciones positivas con el peso y la talla del recién nacido, indicando que los padres de mayor edad tienden a tener hijos más saludables en términos de estas medidas.
+
+El nivel educativo de los padres también está relacionado con las características de salud del recién nacido, especialmente en el caso de la madre. Un mayor nivel educativo puede estar asociado a un mejor acceso a cuidados prenatales y a información sobre salud, lo que puede influir positivamente en el desarrollo del bebé.
+
+Se encontró una relación inversa entre el número de hijos y el número de embarazos con algunas características de salud del recién nacido, lo que sugiere que tener más hijos puede estar relacionado con resultados de salud menos favorables.
+
+En resumen, las características sociodemográficas de los padres, tienen un impacto significativo en las características de salud al nacer de sus hijos.
+
+
+
+**4. Identificar una situación práctica en su área de interés donde el análisis de correlación canónica podría ser útil y explicar por qué.** 
+
+
+En el campo de las ciencias de la salud, el estudio de correlación canónica (CCA) resulta especialmente beneficioso para explorar cómo los elementos del estilo de vida inciden en la salud del corazón. Por ejemplo, podríamos examinar dos grupos de variables: uno que incluye indicadores fisiológicos como la tensión arterial, los niveles de colesterol, glucosa y frecuencia cardíaca; y otro que incluye costumbres de vida como el consumo de frutas y vegetales, el grado de ejercicio físico, las horas de sueño y el uso de alcohol o tabaco.
+El CCA facilita la identificación de patrones de correlación entre estos grupos de variables, asistiendo a los expertos en salud a comprender qué costumbres están más vinculadas con modificaciones en los indicadores cardiovasculares. Esta información es útil para elaborar sugerencias de salud a medida y estrategias preventivas concretas. 
+Si algunas costumbres, como la actividad física regular y una alimentación equilibrada, presentan correlaciones significativas con indicadores superiores de presión arterial y colesterol, entonces es posible elaborar programas de intervención que den prioridad a estos factores para disminuir el riesgo de enfermedades cardiovasculares en la población.
+
+ **5. Formular una pregunta de investigación que podría abordarse utilizando el análisis de correlación canónica.** 
+ 
+ ¿Cómo se relacionan los elementos del estilo de vida (tales como alimentación, actividad física y calidad del sueño) con los índices de salud mental (tales como grados de ansiedad, depresión y bienestar general) en adultos jóvenes?
